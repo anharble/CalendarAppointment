@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- TRANG CHỦ -->
+        <div id="home-page" class="page active">
+            <h2>📅 Calendar Appointment</h2>
+            <div class="clock-box">
+                <p id="current-time"></p>
+            </div>
+
+            <!-- PHẦN LỊCH HIỂN THỊ MỚI -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button onclick="changeMonth(-1)">❮</button>
+                    <h3 id="month-year">Tháng 5 2026</h3>
+                    <button onclick="changeMonth(1)">❯</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div style="color:#ff7979">CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
+                </div>
+                <div id="calendar-days" class="calendar-days"></div>
+            </div>
+
+            <button class="btn btn-main" style="width: 100%; margin-top: 20px;" onclick="navigateTo('list-page')">
+                ⏰ Danh sách lịch hẹn
+            </button>
+        </div>
+
+        <!-- TRANG DANH SÁCH -->
+        <div id="list-page" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>📋 Danh Sách Lịch Hẹn</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" onclick="openReminderListModal()" style="background-color: #f39c12; color: white;">
+                        🔔 Danh sách bộ nhắc
+                    </button>
+                    <button class="btn btn-add" onclick="openModal()">+ Thêm mới</button>
+                </div>
+            </div>
+
+            <table id="appointment-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã lịch hẹn</th>
+                        <th>Tên sự kiện</th>
+                        <th>Thời gian</th>
+                        <th>Địa điểm</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="appointment-list"></tbody>
+            </table>
+            <br>
+            <button class="btn btn-secondary" onclick="navigateTo('home-page')">Quay lại trang chủ</button>
+        </div>
+
+        <div id="reminder-list-modal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <h3>⏰ Tất Cả Nhắc Nhở Lịch Hẹn</h3>
+                <div id="reminder-items-container" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeReminderListModal()">Đóng</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANG CHI TIẾT -->
+        <div id="detail-page" class="page">
+            <h2>🔍 Chi Tiết Lịch Hẹn</h2>
+            <div class="detail-card">
+                <p><strong>Tên sự kiện:</strong> <span id="det-name"></span></p>
+                <p><strong>Vị trí:</strong> <span id="det-location"></span></p>
+                <p><strong>Bắt đầu:</strong> <span id="det-start"></span></p>
+                <p><strong>Kết thúc:</strong> <span id="det-end"></span></p>
+                <p><strong>Người tham gia:</strong> <span id="det-participants"></span></p>
+            </div>
+            <br>
+            <button class="btn btn-secondary" onclick="navigateTo('list-page')">Quay lại danh sách</button>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM/SỬA -->
+    <div id="appointment-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Thêm Lịch Hẹn</h3>
+            <input type="hidden" id="edit-id">
+
+            <div class="form-group">
+                <label>Tên sự kiện:</label>
+                <input type="text" id="event-name" placeholder="Ví dụ: Họp Team">
+            </div>
+            <div class="form-group">
+                <label>Địa điểm:</label>
+                <input type="text" id="event-location" placeholder="Địa điểm hoặc link họp">
+            </div>
+            <div class="form-group">
+                <label>Thời gian bắt đầu:</label>
+                <input type="datetime-local" id="start-time">
+            </div>
+            <div class="form-group">
+                <label>Thời gian kết thúc:</label>
+                <input type="datetime-local" id="end-time">
+            </div>
+            <div class="form-group">
+                <label>Loại cuộc hẹn:</label>
+                <div style="display: flex; gap: 15px; margin-top: 5px;">
+                    <label style="font-weight: normal; cursor: pointer;">
+                        <input type="radio" name="meeting-type" value="false" checked> 👤 Cá nhân
+                    </label>
+                    <label style="font-weight: normal; cursor: pointer;">
+                        <input type="radio" name="meeting-type" value="true"> 👥 Họp nhóm
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-main" onclick="saveAppointment()">Xác nhận</button>
+                <button class="btn btn-del" onclick="closeModal()">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reminder-page" class="page">
+        <h2>🔔 Cài Đặt Bộ Nhắc</h2>
+        <div class="reminder-card">
+            <p>Thiết lập nhắc nhở cho: <strong id="remind-event-name">Sự kiện</strong></p>
+
+            <div class="form-group">
+                <label>Thời gian nhắc trước:</label>
+                <select id="reminder-time" class="custom-select">
+                    <option value="5">Trước 5 phút</option>
+                    <option value="15">Trước 15 phút</option>
+                    <option value="30">Trước 30 phút</option>
+                    <option value="60">Trước 1 giờ</option>
+                    <option value="1440">Trước 1 ngày</option>
+                </select>
+                <label>Nội dung nhắc nhở (Message):</label>
+                <textarea id="reminder-message" class="custom-select" placeholder="Nhập nội dung thông báo..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Phương thức thông báo:</label>
+                <label style="font-weight: normal;">
+                    <input type="checkbox" checked disabled> Thông báo trên trình duyệt
+                </label>
+            </div>
+        </div>
+        <br>
+        <div class="modal-footer">
+            <button class="btn btn-main" onclick="confirmReminder()">Lưu bộ nhắc</button>
+            <button class="btn btn-secondary" onclick="navigateTo('list-page')">Bỏ qua</button>
+        </div>
+    </div>
+
+
+    <!-- CUSTOM ALERT/CONFIRM BOX -->
+    <div id="custom-dialog-overlay" class="dialog-overlay">
+        <div class="dialog-box">
+            <h3 id="dialog-title">Thông báo</h3>
+            <p id="dialog-message">Nội dung thông báo ở đây...</p>
+            <div id="dialog-footer" class="dialog-footer">
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
